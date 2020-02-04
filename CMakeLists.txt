@@ -62,31 +62,19 @@ find_package( Qt5 COMPONENTS Core Widgets REQUIRED )
 
   include_directories( ${SimpleWebServer_Source_DIR})
 
-
-  if(NOT MSVC)
-      add_compile_options(-std=c++11 -Wall -Wextra -Wsign-conversion)
-  else()
-      add_compile_options(/W1)
-  endif()
-
-  add_library(simple-web-server INTERFACE)
-
-  target_include_directories(simple-web-server INTERFACE ${SimpleWebServer_Source_DIR})
-
-  find_package(Threads REQUIRED)
-  target_link_libraries(simple-web-server INTERFACE ${CMAKE_THREAD_LIBS_INIT})
-
   # TODO 2020 when Debian Jessie LTS ends:
   # Remove Boost system, thread, regex components; use Boost::<component> aliases; remove Boost target_include_directories
   if(USE_STANDALONE_ASIO)
-      target_compile_definitions(simple-web-server INTERFACE USE_STANDALONE_ASIO)
       find_file(HAVE_ASIO asio.hpp)
       if(NOT HAVE_ASIO)
           message(FATAL_ERROR "Standalone Asio not found")
       endif()
   else()
       find_package(Boost 1.69.0 COMPONENTS system date_time thread REQUIRED)
-      target_link_libraries(simple-web-server INTERFACE ${Boost_LIBRARIES})
+  
+${SimpleWebServer_Source_DIR})
+
+  find_package(Threads REQUIRED)ver INTERFACE ${Boost_LIBRARIES})
       target_include_directories(simple-web-server INTERFACE ${Boost_INCLUDE_DIR})
       if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU" AND CMAKE_CXX_COMPILER_VERSION VERSION_LESS 4.9)
           target_compile_definitions(simple-web-server INTERFACE USE_BOOST_REGEX)
