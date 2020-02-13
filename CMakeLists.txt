@@ -43,9 +43,7 @@ find_package( ITK COMPONENTS
   ITKImageIntensity
   ITKLabelMap
   ITKMathematicalMorphology
-  ITKMetricsv4
-  ITKOptimizersv4
-  ITKRegistrationMethodsv4
+
   ITKSmoothing
   ITKSpatialObjects
   ITKThresholding
@@ -60,41 +58,11 @@ find_package( Qt5 COMPONENTS Core Widgets REQUIRED )
 
 #For Scoliosis App
 
-  include_directories( ${SimpleWebServer_Source_DIR})
 
-  # TODO 2020 when Debian Jessie LTS ends:
-  # Remove Boost system, thread, regex components; use Boost::<component> aliases; remove Boost target_include_directories
-  if(USE_STANDALONE_ASIO)
-      find_file(HAVE_ASIO asio.hpp)
-      if(NOT HAVE_ASIO)
-          message(FATAL_ERROR "Standalone Asio not found")
-      endif()
+  if(NOT MSVC)
+      add_compile_options(-std=c++11 -Wall -Wextra -Wsign-conversion)
   else()
-      find_package(Boost 1.69.0 COMPONENTS system date_time thread REQUIRED)
-  
-${SimpleWebServer_Source_DIR})
-
-  find_package(Threads REQUIRED)ver INTERFACE ${Boost_LIBRARIES})
-      target_include_directories(simple-web-server INTERFACE ${Boost_INCLUDE_DIR})
-      if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU" AND CMAKE_CXX_COMPILER_VERSION VERSION_LESS 4.9)
-          target_compile_definitions(simple-web-server INTERFACE USE_BOOST_REGEX)
-          find_package(Boost 1.69.0 COMPONENTS regex REQUIRED)
-          target_link_libraries(simple-web-server INTERFACE ${Boost_LIBRARIES})
-          target_include_directories(simple-web-server INTERFACE ${Boost_INCLUDE_DIR})
-      endif()
-  endif()
-  if(WIN32)
-      target_link_libraries(simple-web-server INTERFACE ws2_32 wsock32)
-  endif()
-
-  if(APPLE)
-      set(OPENSSL_ROOT_DIR "/usr/local/opt/openssl")
-  endif()
-  find_package(OpenSSL)
-  if(OPENSSL_FOUND)
-      target_compile_definitions(simple-web-server INTERFACE HAVE_OPENSSL)
-      target_link_libraries(simple-web-server INTERFACE ${OPENSSL_LIBRARIES})
-      target_include_directories(simple-web-server INTERFACE ${OPENSSL_INCLUDE_DIR})
+      add_compile_options(/W1)
   endif()
 
 
@@ -114,9 +82,7 @@ add_definitions( -DNOMINMAX )
 
   set( scoliosis_source_files
     ScoliosisDriver.cxx
-    ScoliosisServer.cxx
     ScoliosisUI.cxx
-    ScoliosisQueryNN.cxx
   )
 
   add_executable( ScoliosisUI
@@ -129,22 +95,14 @@ add_definitions( -DNOMINMAX )
     ${ITK_LIBRARIES}
     ${IntersonArraySDKCxx_LIBRARIES}
     Qt5::Widgets
-    simple-web-server
-    ${Boost_LIBRARIES}
   )
 
-  target_include_directories(ScoliosisUI PRIVATE ${Boost_INCLUDE_DIR})
 
   install( TARGETS ScoliosisUI
     RUNTIME DESTINATION bin COMPONENT Runtime
     LIBRARY DESTINATION bin COMPONENT Runtime
     ARCHIVE DESTINATION lib COMPONENT Development
   )
-
-  install( FILES vertebra-lumbalis-posterior-view.png DESTINATION bin)
-
-
-
 
 
 
